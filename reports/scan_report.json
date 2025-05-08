@@ -1,0 +1,23 @@
+[
+    {
+        "file": "test_files/vulnerable.php",
+        "line": 2,
+        "code": "$id = $_GET['id'];",
+        "issue": "Query using user input variable",
+        "description": "User input stored in variable, possible unsanitized input."
+    },
+    {
+        "file": "test_files/vulnerable.php",
+        "line": 3,
+        "code": "$query = \"SELECT * FROM users WHERE id = '$id'\";",
+        "issue": "Direct SQL query with variable",
+        "description": "Query assignment that could contain SQL injection."
+    },
+    {
+        "file": "test_files/vulnerable.php",
+        "line": 3,
+        "code": "$query = \"SELECT * FROM users WHERE id = '$id'\";",
+        "issue": "User input inside SQL query",
+        "description": "SQL query contains user-controlled variable."
+    }
+]
