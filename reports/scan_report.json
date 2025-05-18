@@ -1,5 +1,19 @@
 [
     {
+        "file": "test_files/test4.php",
+        "line": 7,
+        "code": "$msg = $_GET['msg'];",
+        "issue": "Query using user input variable",
+        "description": "User input stored in variable, possible unsanitized input."
+    },
+    {
+        "file": "test_files/test2.php",
+        "line": 14,
+        "code": "$user = $_GET['user'];",
+        "issue": "Query using user input variable",
+        "description": "User input stored in variable, possible unsanitized input."
+    },
+    {
         "file": "test_files/vulnerable.php",
         "line": 2,
         "code": "$id = $_GET['id'];",
@@ -19,5 +33,61 @@
         "code": "$query = \"SELECT * FROM users WHERE id = '$id'\";",
         "issue": "User input inside SQL query",
         "description": "SQL query contains user-controlled variable."
+    },
+    {
+        "file": "test_files/test4.php",
+        "line": 3,
+        "code": "$email = filter_var($_POST['email'], FILTER_SANITIZE_EMAIL);",
+        "issue": "Unsanitized input passed to custom function",
+        "description": "User input passed to a function without validation."
+    },
+    {
+        "file": "test_files/test2.php",
+        "line": 3,
+        "code": "$name = htmlspecialchars($_GET['name']);",
+        "issue": "Unsanitized input passed to custom function",
+        "description": "User input passed to a function without validation."
+    },
+    {
+        "file": "test_files/test2.php",
+        "line": 7,
+        "code": "echo $_GET['search'];",
+        "issue": "Direct echo of user input",
+        "description": "Directly echoing user input without sanitization."
+    },
+    {
+        "file": "test_files/test2.php",
+        "line": 10,
+        "code": "$comment = htmlentities($_POST['comment']);",
+        "issue": "Unsanitized input passed to custom function",
+        "description": "User input passed to a function without validation."
+    },
+    {
+        "file": "test_files/test3.js",
+        "line": 3,
+        "code": "document.getElementById('output').innerHTML = userInput;",
+        "issue": "innerHTML assignment",
+        "description": "Setting innerHTML directly without sanitizing the variable."
+    },
+    {
+        "file": "test_files/test3.js",
+        "line": 3,
+        "code": "document.getElementById('output').innerHTML = userInput;",
+        "issue": "Assigning input to DOM properties",
+        "description": "Unsafe assignment of input to DOM node properties."
+    },
+    {
+        "file": "test_files/test3.js",
+        "line": 7,
+        "code": "document.getElementById('safe').textContent = safeContent;",
+        "issue": "Assigning input to DOM properties",
+        "description": "Unsafe assignment of input to DOM node properties."
+    },
+    {
+        "file": "test_files/test3.js",
+        "line": 11,
+        "code": "eval(input);",
+        "issue": "eval with user-controlled data",
+        "description": "eval used with dynamic input (extremely dangerous)."
     }
 ]
