@@ -1,4 +1,5 @@
 import os
+import re
 from .csrf_rules import get_csrf_patterns
 
 def scan_file(file_path):
