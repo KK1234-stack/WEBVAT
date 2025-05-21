@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+  <head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>WEBVAT - Vulnerability Scanner</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='basic_homepage.css') }}">
+
+</head>
+
+<body>
+  <div class="container" role="main" aria-label="WEBVAT Vulnerability Scanner Home Page">
+    <h1>WEBVAT</h1>
+    <form id="scanForm" aria-describedby="instructions">
+      <div>
+        <label for="sourceCodeFile">Upload Source Code</label>
+        <input type="file" id="sourceCodeFile" accept=".zip,.tar,.gz,.rar,.7z,.js,.py,.java,.php,.txt" aria-describedby="fileHelp" required />
+        <div id="fileHelp" class="file-selected" aria-live="polite" aria-atomic="true">No file selected</div>
+      </div>
+
+      <div>
+        <label for="vulnType">Select Vulnerablity to Scan</label>
+        <select id="vulnType" required>
+  <option value="" disabled selected>Select a vulnerability</option>
+  <option value="sql_injection">SQL Injection (SQLI)</option>
+  <option value="xss">Cross-Site Scripting (XSS)</option>
+  <option value="csrf">Cross-Site Request Forgery (CSRF)</option>
+  <option value="command_injection">Remote Code Execution (RCE)</option>
+  <option value="file_inclusion">Path Traversal</option>
+  <option value="other">Other</option>
+</select>
+      </div>
+
+      <div>
+        <button type="submit" id="scanButton" disabled>Start Scan</button>
+      </div>
+    </form>
+  </div>
+
+<script>
+  const fileInput = document.getElementById('sourceCodeFile');
+  const fileHelp = document.getElementById('fileHelp');
+  const vulnTypeSelect = document.getElementById('vulnType');
+  const scanButton = document.getElementById('scanButton');
+  const form = document.getElementById('scanForm');
+
+  function updateButtonState() {
+    if(fileInput.files.length > 0 && vulnTypeSelect.value) {
+      scanButton.disabled = false;
+    } else {
+      scanButton.disabled = true;
+    }
+  }
+
+  fileInput.addEventListener('change', () => {
+    if (fileInput.files.length > 0) {
+      fileHelp.textContent = `Selected file: ${fileInput.files[0].name}`;
+    } else {
+      fileHelp.textContent = "No file selected";
+    }
+    updateButtonState();
+  });
+
+  vulnTypeSelect.addEventListener('change', updateButtonState);
+
+  form.addEventListener('submit', (e) => {
+  e.preventDefault();
+
+  scanButton.textContent = "Scanning...";
+  scanButton.disabled = true;
+
+    const formData = new FormData();
+ formData.append("sourceCodeFile", fileInput.files[0]);
+
+  formData.append("vulnType", vulnTypeSelect.value);
+
+  fetch("http://localhost:5000/scan", {
+    method: "POST",
+    body: formData,
+  })
+  .then(response => response.json())
+  .then(data => {
+    alert(`Scan Result: ${data.result}`);
+    scanButton.textContent = "Start Scan";
+    scanButton.disabled = false;
+    form.reset();
+    fileHelp.textContent = "No file selected";
+  })
+  .catch(error => {
+    console.error("Scan error:", error);
+    alert("An error occurred during scanning.");
+    scanButton.textContent = "Start Scan";
+    scanButton.disabled = false;
+  });
+
+  // Simulated scanning delay
+  setTimeout(() => {
+    scanButton.textContent = "Start Scan";
+    scanButton.disabled = false;
+    alert("Scan completed successfully!");
+  }, 2000);
+});
+  
+</script>
+</body>
+</html>
+
