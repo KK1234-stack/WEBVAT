@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>WEBVAT - Vulnerability Scanner</title>
+<style>
+  /* Reset & base */
+  *, *::before, *::after {
+    box-sizing: border-box;
+  }
+
+  body {
+    margin: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #e2e8f0, #f9fafb);
+    color: #111827;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 2rem;
+    overflow-x: hidden;
+  }
+
+  .container {
+    background: #ffffffcc;
+    backdrop-filter: blur(10px);
+    max-width: 480px;
+    width: 100%;
+    padding: 3rem 2.5rem 3rem 2.5rem;
+    border-radius: 16px;
+    box-shadow: 0 20px 30px rgb(0 0 0 / 0.1);
+    display: flex;
+    flex-direction: column;
+    gap: 2.5rem;
+    opacity: 0;
+    transform: translateY(30px);
+    animation: fadeSlideUp 0.7s ease forwards;
+    animation-delay: 0.2s;
+  }
+
+  @keyframes fadeSlideUp {
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  h1 {
+    font-weight: 900;
+    font-size: 3rem;
+    text-align: center;
+    margin: 0 0 0.5rem 0;
+    background: linear-gradient(270deg, #2563eb, #60a5fa, #2563eb);
+    background-size: 400% 400%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: gradientShift 7s ease infinite;
+    position: relative;
+  }
+
+  @keyframes gradientShift {
+    0% {
+      background-position: 0% 50%;
+    }
+    50% {
+      background-position: 100% 50%;
+    }
+    100% {
+      background-position: 0% 50%;
+    }
+  }
+
+  h1::after {
+    content: "";
+    display: block;
+    width: 60px;
+    height: 4px;
+    background: #2563eb;
+    border-radius: 12px;
+    margin: 10px auto 0 auto;
+    position: relative;
+    overflow: hidden;
+  }
+
+  h1::after {
+    animation: underlineAnim 2s ease infinite;
+    background: linear-gradient(90deg, #2563eb, #60a5fa, #2563eb);
+    background-size: 200% 100%;
+  }
+
+  @keyframes underlineAnim {
+    0% {
+      background-position: 0% 0%;
+    }
+    50% {
+      background-position: 100% 0%;
+    }
+    100% {
+      background-position: 0% 0%;
+    }
+  }
+
+  form > div {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    animation: fadeSlideUp 0.7s ease forwards;
+  }
+
+  form > div:nth-child(2) {
+    animation-delay: 0.4s;
+  }
+
+  form > div:nth-child(3) {
+    animation-delay: 0.6s;
+  }
+
+  label {
+    font-weight: 600;
+    color: #374151;
+  }
+
+  input[type="file"] {
+    font-size: 16px;
+    padding: 8px 12px;
+    border-radius: 10px;
+    border: 1.5px solid #d1d5db;
+    background: #f9fafb;
+    cursor: pointer;
+    transition: border-color 0.2s ease;
+  }
+
+  input[type="file"]:focus {
+    outline: none;
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgb(59 130 246 / 0.3);
+  }
+
+  select {
+    width: 100%;
+    padding: 12px 14px;
+    font-size: 16px;
+    border-radius: 10px;
+    border: 1.5px solid #d1d5db;
+    background: #f9fafb;
+    color: #111827;
+    cursor: pointer;
+    transition: border-color 0.2s ease;
+    appearance: none;
+    background-image:
+      linear-gradient(45deg, transparent 50%, #2563eb 50%),
+      linear-gradient(135deg, #2563eb 50%, transparent 50%),
+      linear-gradient(to right, #d1d5db, #d1d5db);
+    background-position:
+      calc(100% - 20px) calc(1em + 2px),
+      calc(100% - 15px) calc(1em + 2px),
+      calc(100% - 25px) 0.8em;
+    background-size: 5px 5px, 5px 5px, 1px 1.5em;
+    background-repeat: no-repeat;
+  }
+
+  select:focus {
+    outline: none;
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgb(59 130 246 / 0.3);
+  }
+
+  button {
+    background-color: #2563eb;
+    border: none;
+    padding: 14px 20px;
+    font-size: 18px;
+    font-weight: 700;
+    color: white;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    box-shadow: 0 6px 12px rgba(37, 99, 235, 0.4);
+  }
+  button:hover:not(:disabled) {
+    background-color: #1e40af;
+    transform: translateY(-2px);
+    box-shadow: 0 10px 16px rgba(30, 64, 175, 0.6);
+  }
+  button:active:not(:disabled) {
+    transform: translateY(0);
+    box-shadow: 0 6px 12px rgba(37, 99, 235, 0.4);
+  }
+  button:disabled {
+    background-color: #9ca3af;
+    cursor: not-allowed;
+    box-shadow: none;
+    transform: none;
+  }
+
+  .file-selected {
+    font-size: 0.9rem;
+    color: #6b7280;
+    font-style: italic;
+    min-height: 1.25em;
+    user-select: none;
+    padding-left: 4px;
+  }
+</style>
+</head>
+<body>
+  <div class="container" role="main" aria-label="WEBVAT Vulnerability Scanner Home Page">
+    <h1>WEBVAT</h1>
+    <form id="scanForm" aria-describedby="instructions">
+      <div>
+        <label for="sourceCodeFile">Upload Source Code</label>
+        <input type="file" id="sourceCodeFile" accept=".zip,.tar,.gz,.rar,.7z,.js,.py,.java,.php,.txt" aria-describedby="fileHelp" required />
+        <div id="fileHelp" class="file-selected" aria-live="polite" aria-atomic="true">No file selected</div>
+      </div>
+
+      <div>
+        <label for="vulnType">Select Vulnerablity to Scan</label>
+        <select id="vulnType" required>
+          <option value="" disabled selected>Select a vulnerability</option>
+          <option value="sqli">SQL Injection (SQLI)</option>
+          <option value="xss">Cross-Site Scripting (XSS)</option>
+          <option value="csrf">Cross-Site Request Forgery (CSRF)</option>
+          <option value="rce">Remote Code Execution (RCE)</option>
+          <option value="pathTraversal">Path Traversal</option>
+          <option value="other">Other</option>
+        </select>
+      </div>
+
+      <div>
+        <button type="submit" id="scanButton" disabled>Start Scan</button>
+      </div>
+    </form>
+  </div>
+
+<script>
+  const fileInput = document.getElementById('sourceCodeFile');
+  const fileHelp = document.getElementById('fileHelp');
+  const vulnTypeSelect = document.getElementById('vulnType');
+  const scanButton = document.getElementById('scanButton');
+  const form = document.getElementById('scanForm');
+
+  function updateButtonState() {
+    if(fileInput.files.length > 0 && vulnTypeSelect.value) {
+      scanButton.disabled = false;
+    } else {
+      scanButton.disabled = true;
+    }
+  }
+
+  fileInput.addEventListener('change', () => {
+    if (fileInput.files.length > 0) {
+      fileHelp.textContent = `Selected file: ${fileInput.files[0].name}`;
+    } else {
+      fileHelp.textContent = "No file selected";
+    }
+    updateButtonState();
+  });
+
+  vulnTypeSelect.addEventListener('change', updateButtonState);
+
+  form.addEventListener('submit', (e) => {
+  e.preventDefault();
+
+  scanButton.textContent = "Scanning...";
+  scanButton.disabled = true;
+
+  // Simulated scanning delay
+  setTimeout(() => {
+    scanButton.textContent = "Start Scan";
+    scanButton.disabled = false;
+    alert("Scan completed successfully!");
+  }, 2000);
+});
+  
+</script>
+</body>
+</html>
+
