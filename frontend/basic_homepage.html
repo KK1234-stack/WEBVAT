@@ -56,7 +56,6 @@
     background-size: 400% 400%;
     background-clip: text;
     -webkit-background-clip: text;
-
     -webkit-text-fill-color: transparent;
     animation: gradientShift 7s ease infinite;
     position: relative;
@@ -205,6 +204,16 @@
     user-select: none;
     padding-left: 4px;
   }
+
+  .scan-results {
+    margin-top: 1rem;
+    padding: 1rem;
+    background: #f9fafb;
+    border-radius: 8px;
+    border: 1px solid #d1d5db;
+    max-height: 200px;
+    overflow-y: auto;
+  }
 </style>
 </head>
 <body>
@@ -218,15 +227,14 @@
       </div>
 
       <div>
-        <label for="vulnType">Select Vulnerablity to Scan</label>
+        <label for="vulnType">Select Vulnerability to Scan</label>
         <select id="vulnType" required>
           <option value="" disabled selected>Select a vulnerability</option>
           <option value="sqli">SQL Injection (SQLI)</option>
           <option value="xss">Cross-Site Scripting (XSS)</option>
           <option value="csrf">Cross-Site Request Forgery (CSRF)</option>
-          <option value="rce">Remote Code Execution (RCE)</option>
-          <option value="pathTraversal">Path Traversal</option>
-          <option value="other">Other</option>
+          <option value="file_inclusion">File Inclusion</option>
+          <option value="command_injection">Command Injection</option>
         </select>
       </div>
 
@@ -234,6 +242,10 @@
         <button type="submit" id="scanButton" disabled>Start Scan</button>
       </div>
     </form>
+    <div id="scanResults" class="scan-results" style="display: none;">
+      <h2>Scan Results</h2>
+      <div id="resultsContent"></div>
+    </div>
   </div>
 
 <script>
@@ -242,9 +254,11 @@
   const vulnTypeSelect = document.getElementById('vulnType');
   const scanButton = document.getElementById('scanButton');
   const form = document.getElementById('scanForm');
+  const scanResults = document.getElementById('scanResults');
+  const resultsContent = document.getElementById('resultsContent');
 
   function updateButtonState() {
-    if(fileInput.files.length > 0 && vulnTypeSelect.value) {
+    if (fileInput.files.length > 0 && vulnTypeSelect.value) {
       scanButton.disabled = false;
     } else {
       scanButton.disabled = true;
@@ -262,21 +276,63 @@
 
   vulnTypeSelect.addEventListener('change', updateButtonState);
 
-  form.addEventListener('submit', (e) => {
-  e.preventDefault();
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
 
-  scanButton.textContent = "Scanning...";
-  scanButton.disabled = true;
+    scanButton.textContent = "Scanning...";
+    scanButton.disabled = true;
+    scanResults.style.display = 'none';
+    resultsContent.innerHTML = '';
 
-  // Simulated scanning delay
-  setTimeout(() => {
-    scanButton.textContent = "Start Scan";
-    scanButton.disabled = false;
-    alert("Scan completed successfully!");
-  }, 2000);
-});
-  
+    const formData = new FormData();
+    formData.append('file', fileInput.files[0]);
+    formData.append('vuln_types', JSON.stringify([vulnTypeSelect.value]));
+    formData.append('file_types', JSON.stringify(['.php', '.js', '.html']));
+    formData.append('save_report', JSON.stringify(true));
+
+    try {
+      const response = await fetch('http://localhost:8000/api/scan', {
+        method: 'POST',
+        body: formData
+      });
+    
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const result = await response.json();
+      console.log("we are checking the result",result);
+      
+      scanResults.style.display = 'block';
+      if (result.vulnerabilities.length === 0) {
+        resultsContent.innerHTML = '<p>No vulnerabilities found.</p>';
+      } else {
+        const ul = document.createElement('ul');
+        result.vulnerabilities.forEach(vuln => {
+          const li = document.createElement('li');
+          li.innerHTML = `<strong>File:</strong> ${vuln.file}<br>
+                         <strong>Line:</strong> ${vuln.line}<br>
+                         <strong>Issue:</strong> ${vuln.issue}<br>
+                         <strong>Code:</strong> ${vuln.code}`;
+          ul.appendChild(li);
+        });
+        resultsContent.appendChild(ul);
+      }
+
+      if (result.report_path) {
+        resultsContent.innerHTML += `<p>Report saved at: ${result.report_path}</p>`;
+      }
+
+      scanButton.textContent = "Start Scan";
+      scanButton.disabled = false;
+    } catch (error) {
+      console.error('Error:', error);
+      resultsContent.innerHTML = `<p>Error during scan: ${error.message}</p>`;
+      scanResults.style.display = 'block';
+      scanButton.textContent = "Start Scan";
+      scanButton.disabled = false;
+    }
+  });
 </script>
 </body>
 </html>
-
