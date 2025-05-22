@@ -137,6 +137,7 @@ from scanner.xss_scanner import scan_directory as scan_xss_directory
 from scanner.file_inclusion_scanner import scan_directory as scan_file_inclusion_directory
 from scanner.csrf_scanner import scan_directory as scan_csrf_directory
 from scanner.command_injection_scanner import scan_directory as scan_command_injection_directory
+
 from scanner.idor_scanner import scan_directory as scan_idor_directory
 from scanner.ssrf_scanner import scan_directory as scan_ssrf_directory
 
