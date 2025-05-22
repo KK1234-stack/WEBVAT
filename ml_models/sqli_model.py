@@ -8,8 +8,6 @@ from tensorflow.keras.preprocessing.sequence import pad_sequences
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import classification_report
 
-# Step 1: Load the Kaggle Dataset
-
 data = pd.read_csv("./ml_models/Modified_SQL_Dataset.csv")
 
 print(data.head())
@@ -29,7 +27,7 @@ X_padded = pad_sequences(X_tokenized, maxlen=max_sequence_length, padding='post'
 
 X_train, X_test, y_train, y_test = train_test_split(X_padded, y, test_size=0.2, random_state=42)
 
-# Step 3: Build the CNN Model
+# CNN Model
 model = Sequential([
     Embedding(input_dim=10000, output_dim=128, input_length=max_sequence_length),  # Embedding layer
     Conv1D(filters=64, kernel_size=3, activation='relu'),  # Convolutional layer
@@ -65,4 +63,5 @@ for query, pred in zip(new_queries, predictions):
     print("SQL Injection Detected!" if pred > 0.5 else "Query is Safe.")
     print("-" * 50)
 
-model.save('sqli_model.h5')
+model.save('cnn_sqli_model.keras')
+
