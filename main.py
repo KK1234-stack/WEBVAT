@@ -138,6 +138,12 @@ from scanner.file_inclusion_scanner import scan_directory as scan_file_inclusion
 from scanner.csrf_scanner import scan_directory as scan_csrf_directory
 from scanner.command_injection_scanner import scan_directory as scan_command_injection_directory
 
+from scanner.idor_scanner import scan_directory as scan_idor_directory
+from scanner.ssrf_scanner import scan_directory as scan_ssrf_directory
+
+
+
+
 app = FastAPI(title="Static Vulnerability Scanner API")
 
 # CORS configuration to allow frontend requests
@@ -207,7 +213,7 @@ async def scan_combined_endpoint(file: UploadFile = File(...), vuln_types: str =
                 raise HTTPException(status_code=422, detail=f"Invalid JSON format: {str(e)}")
 
             # Clean and validate input
-            valid_vuln_types = {"sqli", "xss", "file_inclusion", "csrf", "command_injection"}
+            valid_vuln_types = {"sqli", "xss", "file_inclusion", "csrf", "command_injection","ssrf","idor"}
             vuln_types_list = [v.strip().lower() for v in vuln_types_list if v.strip().lower() in valid_vuln_types]
             if not vuln_types_list:
                 vuln_types_list = list(valid_vuln_types)  # Default to all
@@ -258,6 +264,22 @@ async def scan_combined_endpoint(file: UploadFile = File(...), vuln_types: str =
                     results.extend([Vulnerability(**vuln) for vuln in scan_command_injection_directory(scan_folder)])
                 except ValidationError as e:
                     print(f"Invalid data from Command Injection scanner: {str(e)}")
+                    pass
+
+            if 'idor' in vuln_types_list:
+                print("Starting IDOR scan...")
+                try:
+                    results.extend([Vulnerability(**vuln) for vuln in scan_idor_directory(scan_folder)])
+                except ValidationError as e:
+                    print(f"Invalid data from IDOR scanner: {str(e)}")
+                    pass
+            
+            if 'ssrf' in vuln_types_list:
+                print("Starting SSRF scan...")
+                try:
+                    results.extend([Vulnerability(**vuln) for vuln in scan_ssrf_directory(scan_folder)])
+                except ValidationError as e:
+                    print(f"Invalid data from CSRF scanner: {str(e)}")
                     pass
 
             response = ScanResponse(

@@ -231,11 +231,13 @@
         <label for="vulnType">Select Vulnerability to Scan</label>
         <select id="vulnType" required>
           <option value="" disabled selected>Select a vulnerability</option>
-          <option value="sqli">SQL Injection (SQLI)</option>
+          <option value="sqli">SQL Injection (SQLi)</option>
           <option value="xss">Cross-Site Scripting (XSS)</option>
           <option value="csrf">Cross-Site Request Forgery (CSRF)</option>
           <option value="file_inclusion">File Inclusion</option>
           <option value="command_injection">Command Injection</option>
+          <option value="ssrf">Server-Site Request Forgery (SSRF) </option>
+          <option value="idor">Insecure Direct Object Reference (IDOR)</option>
         </select>
       </div>
 
